@@ -22,7 +22,7 @@ function varargout = ezfmri(varargin)
 
 % Edit the above text to modify the response to help ezfmri
 
-% Last Modified by GUIDE v2.5 18-Nov-2014 14:33:31
+% Last Modified by GUIDE v2.5 19-Nov-2014 10:08:57
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -75,14 +75,38 @@ varargout{1} = handles.output;
 
 % --- Executes on button press in studyFolderBtn.
 function studyFolderBtn_Callback(hObject, eventdata, handles)
+%SYSTEM GUI for selecting a folder
 d.studyFolder = uigetdir(pwd,'Choose your experiment folder');
-h = findobj('Tag','studyFolderText');
+h = findobj('Tag','studyFolderLabel');
 set(h,'String',d.studyFolder);
-guidata(hObject,d.studyFolder);
+%LIST CONTENTS OF THE FOLDER (UNIX AND MAC OSX ONLY)
+[d.status, d.cmdout] = system(sprintf('find "%s" -iname "*.nii" ! -name ".*.nii"',d.studyFolder));
+h = findobj('Tag','studyFolderText');
+%SPLIT d.cmdout BASED ON NEWLINE CHARACTER
+files = regexp(d.cmdout,'\n','split');
+%FILL IN THE FILE LIST BOX BY NUMBER OF LINES IN files
+for i = 1:size(files,2)
+    file = char(files(1,i));
+    if i == 1
+        set(h,'String',{file});
+    else
+        oldString = get(h,'String');
+        set(h,'String',{char(oldString);file});
+    end
+end
+d.allFiles = get(h,'String');
+%SAVE TO d IN GUIDATA
+guidata(hObject,d);
 
 
-%*to list contents of chosen folder
-% [status, cmdout] = system(sprintf('find "%s" -iname "*.nii" ! -name ".*.nii"',pwd));
-% cmdout
+
+
+
+
+
+
+
+
+
 
 
